@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -g -Iinc
+CFLAGS = -Wall -g -Iinc -fsanitize=address
 LDFLAGS = -lssl -lcrypto
 
 TARGET = cryptopals

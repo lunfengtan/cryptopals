@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <openssl/aes.h>
 #include "cryptopals.h"
 
 void set1Problem1(void) {
@@ -63,7 +64,9 @@ void set1Problem3(void) {
     out = xor(inRaw, inRawLen, (unsigned char*)&key, 1);
 
     printf("Set 1 Problem 3: Single-byte XOR cipher\n");
-    printf("plaintext: %s\n\n", out);
+    printf("plaintext:\n");
+    printArray((char*)out, inRawLen);
+    printf("\n");
 
     free(inRaw);
     free(out);
@@ -71,8 +74,8 @@ void set1Problem3(void) {
 
 void set1Problem4(void) {
     FILE* fp;
-    char line[60];
-    unsigned char ans[60];
+    char line[64];
+    unsigned char ans[64];
     unsigned char *inRaw = NULL, *xored = NULL;
     float score, maxScore = 0.f;
     int k, inRawLen;
@@ -83,14 +86,14 @@ void set1Problem4(void) {
         exit(1);
     }
 
-    while (fgets(line, sizeof(line), fp)) {
+    while (fgets(line, sizeof(line), fp) != NULL) {
         inRawLen = hexDecode(line, &inRaw);
         for (k = 0; k < 256; k++) {
             xored = xor(inRaw, inRawLen, (unsigned char*)&k, 1);
-            score = scoreEnglish(xored, strlen((char*)xored));
+            score = scoreEnglish(xored, inRawLen);
             if (score > maxScore) {
                 maxScore = score;
-                memcpy(ans, xored, sizeof(ans));
+                memcpy(ans, xored, inRawLen);
             }
             free(xored);
         }
@@ -98,7 +101,8 @@ void set1Problem4(void) {
     fclose(fp);
 
     printf("Set 1 Problem 4: Detect single-character XOR\n");
-    printf("plaintext: %s\n\n", ans);
+    printf("plaintext:\n");
+    printArray((char*)ans, inRawLen);
 }
 
 void set1Problem5(void) {

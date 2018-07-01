@@ -268,7 +268,7 @@ void breakRepeatingKeyXor(const unsigned char* in, int inlen,
         perror("Error: breakRepeatingKeyXor malloc error");
         goto err;
     }
-    transposedSize = (inlen + (*keySize) - 1) / (*keySize);
+    transposedSize = inlen / (*keySize);    // ignore last line
     transposed = malloc(transposedSize);
     if (transposed == NULL) {
         perror("Error: breakRepeatingKeyXor malloc error");
@@ -290,15 +290,17 @@ err:
 void aes128DecryptECB(const unsigned char* in, int inlen, const unsigned char* key, unsigned char** out) {
     int offset;
     AES_KEY aesKey;
-    unsigned char* outbuf = NULL;
 
-    outbuf = calloc((inlen / AES_BLOCK_SIZE + 1) * AES_BLOCK_SIZE, sizeof(unsigned char));
+    *out = calloc((inlen / AES_BLOCK_SIZE + 1) * AES_BLOCK_SIZE, sizeof(unsigned char));
+    if (*out == NULL) {
+        perror("Error: aes128DecryptECB calloc error");
+        exit(1);
+    }
 
     AES_set_decrypt_key(key, 128, &aesKey);
     for (offset = 0; offset < inlen; offset += AES_BLOCK_SIZE) {
-        AES_ecb_encrypt(in + offset, outbuf + offset, &aesKey, AES_DECRYPT);
+        AES_ecb_encrypt(in + offset, (*out) + offset, &aesKey, AES_DECRYPT);
     }
-    *out = outbuf;
 }
 
 void strip_newlines(char* s) {
