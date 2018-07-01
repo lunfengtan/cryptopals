@@ -126,8 +126,7 @@ void set1Problem6(void) {
     FILE* fp;
     char* fpbuf = NULL;
     unsigned char* raw = NULL, *bestKey = NULL, *decoded = NULL;
-    int fplen, fpbuflen, rawlen;
-    int bestKeySize, i, j;
+    int fplen, fpbuflen, rawlen, bestKeySize;
 
     fp = fopen("data/6.txt", "r");
     if (fp == NULL) {
@@ -158,9 +157,9 @@ void set1Problem6(void) {
     printf("Set 1 Problem 6: Break repeating-key XOR\n");
     printf("key length: %d\n", bestKeySize);
     printf("key:\n");
-    printArray(bestKey, bestKeySize);
+    printArray((char*)bestKey, bestKeySize);
     printf("plaintext:\n");
-    printArray(decoded, rawlen);
+    printArray((char*)decoded, rawlen);
 
     fclose(fp);
 
@@ -168,5 +167,51 @@ err:
     free(fpbuf);
     free(raw);
     free(bestKey);
+    free(decoded);
+}
+
+void set1Problem7(void) {
+    FILE* fp;
+    char* fpbuf = NULL;
+    unsigned char* raw = NULL, *decoded = NULL;
+    int fplen, fpbuflen, rawlen;
+    char* key = "YELLOW SUBMARINE";
+
+    fp = fopen("data/7.txt", "r");
+    if (fp == NULL) {
+        perror("Error: Failed to open file 'data/6.txt'");
+        exit(1);
+    }
+    fseek(fp, 0, SEEK_END);
+    fplen = ftell(fp);
+    rewind(fp);
+
+    fpbuf = malloc(fplen + 1);
+    if (fpbuf == NULL) {
+        perror("Error: set1Problem6 malloc error");
+        goto err;
+    }
+    fpbuflen = fread(fpbuf, 1, fplen, fp);
+    if (fpbuflen != fplen) {
+        perror("Error: set1Problem6 fread error");
+        goto err;
+    }
+    fpbuf[fpbuflen] = '\0';
+    strip_newlines(fpbuf);
+    fpbuflen = strlen(fpbuf);
+
+    rawlen = base64Decode(fpbuf, fpbuflen, &raw);
+    aes128DecryptECB(raw, rawlen, (const unsigned char*)key, &decoded);
+
+    printf("Set 1 Problem 7: AES in ECB mode\n");
+    printf("key: %s\n", key);
+    printf("plaintext:\n");
+    printArray((char*)decoded, rawlen);
+
+    fclose(fp);
+
+err:
+    free(fpbuf);
+    free(raw);
     free(decoded);
 }

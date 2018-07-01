@@ -29,6 +29,8 @@ void breakRepeatingKeyXor(const unsigned char* in, int inlen,
                           unsigned char** key, int* keySize, int maxkeysize,
                           unsigned char** decoded);
 
+void aes128DecryptECB(const unsigned char* in, int inlen, const unsigned char* key, unsigned char** out);
+
 void strip_newlines(char* s);
 void printHex(const char* arr, size_t len);
 void printArray(const char* arr, size_t len);

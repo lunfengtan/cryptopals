@@ -287,6 +287,20 @@ err:
     free(transposed);
 }
 
+void aes128DecryptECB(const unsigned char* in, int inlen, const unsigned char* key, unsigned char** out) {
+    int offset;
+    AES_KEY aesKey;
+    unsigned char* outbuf = NULL;
+
+    outbuf = calloc((inlen / AES_BLOCK_SIZE + 1) * AES_BLOCK_SIZE, sizeof(unsigned char));
+
+    AES_set_decrypt_key(key, 128, &aesKey);
+    for (offset = 0; offset < inlen; offset += AES_BLOCK_SIZE) {
+        AES_ecb_encrypt(in + offset, outbuf + offset, &aesKey, AES_DECRYPT);
+    }
+    *out = outbuf;
+}
+
 void strip_newlines(char* s) {
     char* ptr = s;
 
