@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <float.h>
 #include <openssl/aes.h>
 #include "cryptopals.h"
 
@@ -61,8 +62,7 @@ exit:
 }
 
 /* Encode raw bytes into base64 */
-int Base64Encode(const unsigned char* in, char** out) {
-    size_t inlen = strlen((const char *) in);
+int base64Encode(const unsigned char* in, int inlen, char** out) {
     int outlen, i, j, idx;
     char *outbuf = NULL;
 
@@ -71,10 +71,10 @@ int Base64Encode(const unsigned char* in, char** out) {
         return 0;
     }
 
-    outlen = inlen * 4 / 3;
-    outbuf = malloc(outlen);
+    outlen = ((inlen + 2) / 3) * 4;
+    outbuf = malloc(outlen + 1);
     if (outbuf == NULL) {
-        perror("Error: Base64Encode malloc error");
+        perror("Error: base64Encode malloc error");
         goto err;
     }
 
@@ -100,7 +100,58 @@ int Base64Encode(const unsigned char* in, char** out) {
         }
         outbuf[i] = base64Table[idx];
     }
+    if (inlen % 3) {
+        int padding = 3 - (inlen % 3);
+        for (i = 0; i < padding; i++) {
+            outbuf[outlen - 1 - i] = '=';
+        }
+    }
+    outbuf[outlen] = '\0';
+    *out = outbuf;
+    return outlen;
 
+err:
+    free(outbuf);
+    return -1;
+}
+
+/* Decode base64 into raw bytes */
+int base64Decode(const char* in, int inlen, unsigned char** out) {
+    // size_t inlen = strlen(in);
+    int outlen, i, j;
+    unsigned char* outbuf = NULL;
+    unsigned char byteH, byteL;
+
+    while (inlen >= 0 && in[inlen - 1] == '=') {
+        inlen--;
+    }
+
+    outlen = inlen * 3 / 4;
+    outbuf = malloc(outlen);
+    if (outbuf == NULL) {
+        perror("Error: base64Decode malloc error");
+        goto err;
+    }
+
+    for (i = 0, j = 0; i < outlen; i++) {
+        byteH = strchr(base64Table, in[j]) - base64Table;
+        byteL = strchr(base64Table, in[j + 1]) - base64Table;
+
+        switch (i % 3) {
+            case 0:
+                outbuf[i] = (byteH << 2) | ((byteL >> 4) & 0x03);
+                j++;
+                break;
+            case 1:
+                outbuf[i] = (byteH << 4) | ((byteL >> 2) & 0x0F) ;
+                j++;
+                break;
+            case 2:
+                outbuf[i] = (byteH << 6) | (byteL & 0x3F);
+                j += 2;
+                break;
+        }
+    }
     *out = outbuf;
     return outlen;
 
@@ -167,6 +218,88 @@ float scoreEnglish(const unsigned char* in, int len) {
     return score;
 }
 
+int hammingDistance(const unsigned char* s1, const unsigned char* s2, int len) {
+    int i, dist = 0;
+    unsigned char xored;
+
+    for (i = 0; i < len; i++) {
+        xored = s1[i] ^ s2[i];
+        while (xored) {
+            xored &= (xored - 1);
+            dist++;
+        }
+    }
+    return dist;
+}
+
+int guessKeySize(const unsigned char* in, int len, int maxKeySize) {
+    int keysize, guessKeySize, dist;
+    int nblocks, blk1, blk2;
+    float avgDist, minDist = FLT_MAX;
+
+    for (keysize = 2; keysize < maxKeySize; keysize++) {
+        dist = 0;
+        nblocks = len / keysize;
+        for (blk1 = 0; blk1 < nblocks; blk1++) {
+            for (blk2 = blk1 + 1; blk2 < nblocks; blk2++) {
+                dist += hammingDistance(&in[blk1 * keysize], &in[blk2 * keysize], keysize);
+            }
+        }
+        avgDist = (float)dist / (keysize * nblocks * (nblocks - 1) / 2);
+        if (avgDist < minDist) {
+            minDist = avgDist;
+            guessKeySize = keysize;
+        }
+    }
+    return guessKeySize;
+}
+
+void breakRepeatingKeyXor(const unsigned char* in, int inlen,
+                          unsigned char** key, int* keySize, int maxKeySize,
+                          unsigned char** decoded) {
+
+    unsigned char* transposed = NULL;
+    int transposedSize, i, j;
+
+    *key = NULL;
+    *keySize = guessKeySize(in, inlen, maxKeySize);
+    *key = malloc(*keySize);
+    if (*key == NULL) {
+        perror("Error: breakRepeatingKeyXor malloc error");
+        goto err;
+    }
+    transposedSize = (inlen + (*keySize) - 1) / (*keySize);
+    transposed = malloc(transposedSize);
+    if (transposed == NULL) {
+        perror("Error: breakRepeatingKeyXor malloc error");
+        goto err;
+    }
+
+    for (i = 0; i < *keySize; i++) {
+        for (j = 0; j < transposedSize; j++) {
+            transposed[j] = in[j * (*keySize) + i];
+        }
+        (*key)[i] = findXorKey(transposed, transposedSize);
+    }
+    *decoded = xor(in, inlen, *key, *keySize);
+
+err:
+    free(transposed);
+}
+
+void strip_newlines(char* s) {
+    char* ptr = s;
+
+    while (ptr != 0 && *ptr != '\0') {
+        if (*ptr == '\n') {
+            ptr++;
+        }
+        else {
+            *s++ = *ptr++;
+        }
+    }
+    *s = '\0';
+}
 
 void printHex(const char* arr, size_t len) {
     size_t i;

@@ -6,5 +6,6 @@ void set1Problem2(void);
 void set1Problem3(void);
 void set1Problem4(void);
 void set1Problem5(void);
+void set1Problem6(void);
 
 #endif

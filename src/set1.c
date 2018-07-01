@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include "cryptopals.h"
 
 void set1Problem1(void) {
@@ -10,8 +11,8 @@ void set1Problem1(void) {
     char* base64;
     int base64len;
 
-    hexDecode(in, &inRaw);
-    base64len = Base64Encode(inRaw, &base64);
+    int inlen = hexDecode(in, &inRaw);
+    base64len = base64Encode(inRaw, inlen, &base64);
 
     printf("Set 1 Problem 1: Convert hex to base64\n");
     printf("input: %s\n", in);
@@ -79,6 +80,7 @@ void set1Problem4(void) {
     fp = fopen("data/4.txt", "r");
     if (fp == NULL) {
         perror("Error: Failed to open file 'data/4.txt'");
+        exit(1);
     }
 
     while (fgets(line, sizeof(line), fp)) {
@@ -93,6 +95,7 @@ void set1Problem4(void) {
             free(xored);
         }
     }
+    fclose(fp);
 
     printf("Set 1 Problem 4: Detect single-character XOR\n");
     printf("plaintext: %s\n\n", ans);
@@ -117,4 +120,53 @@ void set1Problem5(void) {
 
     free(outHex);
     free(out);
+}
+
+void set1Problem6(void) {
+    FILE* fp;
+    char* fpbuf = NULL;
+    unsigned char* raw = NULL, *bestKey = NULL, *decoded = NULL;
+    int fplen, fpbuflen, rawlen;
+    int bestKeySize, i, j;
+
+    fp = fopen("data/6.txt", "r");
+    if (fp == NULL) {
+        perror("Error: Failed to open file 'data/6.txt'");
+        exit(1);
+    }
+    fseek(fp, 0, SEEK_END);
+    fplen = ftell(fp);
+    rewind(fp);
+
+    fpbuf = malloc(fplen + 1);
+    if (fpbuf == NULL) {
+        perror("Error: set1Problem6 malloc error");
+        goto err;
+    }
+    fpbuflen = fread(fpbuf, 1, fplen, fp);
+    if (fpbuflen != fplen) {
+        perror("Error: set1Problem6 fread error");
+        goto err;
+    }
+    fpbuf[fpbuflen] = '\0';
+    strip_newlines(fpbuf);
+    fpbuflen = strlen(fpbuf);
+
+    rawlen = base64Decode(fpbuf, fpbuflen, &raw);
+    breakRepeatingKeyXor(raw, rawlen, &bestKey, &bestKeySize, 40, &decoded);
+
+    printf("Set 1 Problem 6: Break repeating-key XOR\n");
+    printf("key length: %d\n", bestKeySize);
+    printf("key:\n");
+    printArray(bestKey, bestKeySize);
+    printf("plaintext:\n");
+    printArray(decoded, rawlen);
+
+    fclose(fp);
+
+err:
+    free(fpbuf);
+    free(raw);
+    free(bestKey);
+    free(decoded);
 }

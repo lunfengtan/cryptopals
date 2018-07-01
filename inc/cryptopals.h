@@ -15,13 +15,21 @@
 int hexDecode(const char* in, unsigned char** out);
 char* hexEncode(const unsigned char* in, int len);
 
-int Base64Encode(const unsigned char* in, char** out);
+int base64Encode(const unsigned char* in, int inlen, char** out);
+int base64Decode(const char* in, int inlen, unsigned char** out);
 
 unsigned char* xor(const unsigned char* in, int inlen, const unsigned char* key, int keylen);
 unsigned char findXorKey(const unsigned char* in, int len);
 
 float scoreEnglish(const unsigned char* in, int len);
 
+int hammingDistance(const unsigned char* s1, const unsigned char* s2, int len);
+int guessKeySize(const unsigned char* in, int len, int maxKeySize);
+void breakRepeatingKeyXor(const unsigned char* in, int inlen,
+                          unsigned char** key, int* keySize, int maxkeysize,
+                          unsigned char** decoded);
+
+void strip_newlines(char* s);
 void printHex(const char* arr, size_t len);
 void printArray(const char* arr, size_t len);
 
