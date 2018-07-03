@@ -287,13 +287,13 @@ err:
     free(transposed);
 }
 
-void aes128DecryptECB(const unsigned char* in, int inlen, const unsigned char* key, unsigned char** out) {
+void AES128DecryptECB(const unsigned char* in, int inlen, const unsigned char* key, unsigned char** out) {
     int offset;
     AES_KEY aesKey;
 
     *out = calloc((inlen / AES_BLOCK_SIZE + 1) * AES_BLOCK_SIZE, sizeof(unsigned char));
     if (*out == NULL) {
-        perror("Error: aes128DecryptECB calloc error");
+        perror("Error: AES128DecryptECB calloc error");
         exit(1);
     }
 
@@ -301,6 +301,21 @@ void aes128DecryptECB(const unsigned char* in, int inlen, const unsigned char* k
     for (offset = 0; offset < inlen; offset += AES_BLOCK_SIZE) {
         AES_ecb_encrypt(in + offset, (*out) + offset, &aesKey, AES_DECRYPT);
     }
+}
+
+/* Returns TRUE if the ciphertext is encrypted with AES in ECB mode */
+bool detectAES128ECB(const unsigned char* in, int inlen) {
+    int numberOfAESBlocks, i, j;
+
+    numberOfAESBlocks = inlen / AES_BLOCK_SIZE;
+    for (i = 0; i < numberOfAESBlocks; i++) {
+        for (j = i + 1; j < numberOfAESBlocks; j++) {
+            if (!memcmp(&in[i * AES_BLOCK_SIZE], &in[j * AES_BLOCK_SIZE], AES_BLOCK_SIZE)) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void strip_newlines(char* s) {

@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <openssl/aes.h>
 #include "cryptopals.h"
 
 void set1Problem1(void) {
@@ -97,6 +96,7 @@ void set1Problem4(void) {
             }
             free(xored);
         }
+        free(inRaw);
     }
     fclose(fp);
 
@@ -183,7 +183,7 @@ void set1Problem7(void) {
 
     fp = fopen("data/7.txt", "r");
     if (fp == NULL) {
-        perror("Error: Failed to open file 'data/6.txt'");
+        perror("Error: Failed to open file 'data/7.txt'");
         exit(1);
     }
     fseek(fp, 0, SEEK_END);
@@ -205,7 +205,7 @@ void set1Problem7(void) {
     fpbuflen = strlen(fpbuf);
 
     rawlen = base64Decode(fpbuf, fpbuflen, &raw);
-    aes128DecryptECB(raw, rawlen, (const unsigned char*)key, &decoded);
+    AES128DecryptECB(raw, rawlen, (const unsigned char*)key, &decoded);
 
     printf("Set 1 Problem 7: AES in ECB mode\n");
     printf("key: %s\n", key);
@@ -218,4 +218,33 @@ err:
     free(fpbuf);
     free(raw);
     free(decoded);
+}
+
+void set1Problem8(void) {
+    FILE* fp;
+    char line[512];
+    unsigned char *inRaw = NULL;
+    int lineNumber, inRawLen;
+
+    fp = fopen("data/8.txt", "r");
+    if (fp == NULL) {
+        perror("Error: Failed to open file 'data/8.txt'");
+        exit(1);
+    }
+
+    printf("Set 1 Problem 8: Detect AES in ECB mode\n");
+    lineNumber = 1;
+    while (fgets(line, sizeof(line), fp)) {
+        inRawLen = hexDecode(line, &inRaw);
+        if (detectAES128ECB(inRaw, inRawLen)) {
+            printf("AES ECB encryption detected at line %d\n", lineNumber);
+            printf("cipher:\n");
+            printArray(line, strlen(line));
+            free(inRaw);
+            break;
+        }
+        lineNumber++;
+        free(inRaw);
+    }
+    fclose(fp);
 }

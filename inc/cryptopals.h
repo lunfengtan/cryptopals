@@ -2,6 +2,7 @@
 #define CRYPTOPALS_H
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
@@ -29,7 +30,8 @@ void breakRepeatingKeyXor(const unsigned char* in, int inlen,
                           unsigned char** key, int* keySize, int maxkeysize,
                           unsigned char** decoded);
 
-void aes128DecryptECB(const unsigned char* in, int inlen, const unsigned char* key, unsigned char** out);
+void AES128DecryptECB(const unsigned char* in, int inlen, const unsigned char* key, unsigned char** out);
+bool detectAES128ECB(const unsigned char* in, int inlen);
 
 void strip_newlines(char* s);
 void printHex(const char* arr, size_t len);

@@ -10,6 +10,7 @@ int main(void)
     set1Problem5();
     set1Problem6();
     set1Problem7();
+    set1Problem8();
 
     return 0;
 }
