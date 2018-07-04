@@ -318,6 +318,25 @@ bool detectAES128ECB(const unsigned char* in, int inlen) {
     return false;
 }
 
+char* pkcs7Pad(char* in, int inlen, int blklen) {
+    char* out = NULL;
+    int i;
+    int padlen = blklen - (inlen % blklen);
+    int newlen = inlen + padlen;
+
+    out = calloc(newlen + 1, sizeof(char));
+    if (out == NULL) {
+        perror("Error: pkcs7Pad calloc error");
+        exit(1);
+    }
+    memcpy(out, in, inlen);
+
+    for (i = inlen; i < newlen; i++) {
+        out[i] = padlen;
+    }
+    return out;
+}
+
 void strip_newlines(char* s) {
     char* ptr = s;
 

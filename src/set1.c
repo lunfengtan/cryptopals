@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include "set1.h"
 #include "cryptopals.h"
 
 void set1Problem1(void) {
@@ -192,12 +193,12 @@ void set1Problem7(void) {
 
     fpbuf = malloc(fplen + 1);
     if (fpbuf == NULL) {
-        perror("Error: set1Problem6 malloc error");
+        perror("Error: set1Problem7 malloc error");
         goto err;
     }
     fpbuflen = fread(fpbuf, 1, fplen, fp);
     if (fpbuflen != fplen) {
-        perror("Error: set1Problem6 fread error");
+        perror("Error: set1Problem7 fread error");
         goto err;
     }
     fpbuf[fpbuflen] = '\0';

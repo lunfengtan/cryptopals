@@ -32,6 +32,7 @@ void breakRepeatingKeyXor(const unsigned char* in, int inlen,
 
 void AES128DecryptECB(const unsigned char* in, int inlen, const unsigned char* key, unsigned char** out);
 bool detectAES128ECB(const unsigned char* in, int inlen);
+char* pkcs7Pad(char* in, int inlen, int blklen);
 
 void strip_newlines(char* s);
 void printHex(const char* arr, size_t len);

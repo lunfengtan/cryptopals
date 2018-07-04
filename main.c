@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "set1.h"
+#include "set2.h"
 
 int main(void)
 {
@@ -11,6 +12,8 @@ int main(void)
     set1Problem6();
     set1Problem7();
     set1Problem8();
+
+    set2Problem1();
 
     return 0;
 }
