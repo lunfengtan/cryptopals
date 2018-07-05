@@ -13,6 +13,11 @@
             printf("Wrong answer!\n"); \
     } while (0)
 
+typedef enum {
+    AES_CBC,
+    AES_ECB
+} AES_MODE;
+
 size_t hexDecode(const char* in, unsigned char** out);
 char* hexEncode(const unsigned char* in, size_t len);
 
@@ -30,15 +35,18 @@ void breakRepeatingKeyXor(const unsigned char* in, size_t inlen,
                           unsigned char** key, size_t* keySize, size_t maxkeysize,
                           unsigned char** decoded);
 
-void AES128EncryptECB(const unsigned char* in, size_t len, const unsigned char* key, unsigned char** out);
+size_t AES128EncryptECB(const unsigned char* in, size_t len, const unsigned char* key, unsigned char** out);
 void AES128DecryptECB(const unsigned char* in, size_t inlen, const unsigned char* key, unsigned char** out);
-void AES128EncryptCBC(const unsigned char* in, size_t inlen,
+size_t AES128EncryptCBC(const unsigned char* in, size_t inlen,
                       const unsigned char* key, const unsigned char* iv, unsigned char** out);
 void AES128DecryptCBC(const unsigned char* in, size_t inlen,
                       const unsigned char* key, const unsigned char* iv, unsigned char** out);
 bool detectAES128ECB(const unsigned char* in, size_t inlen);
-char* pkcs7Pad(const char* in, size_t inlen, size_t blklen);
+
+size_t pkcs7Pad(const char* in, size_t inlen, size_t blklen, char** out);
 char* pkcs7Strip(char* in, size_t inlen);
+
+unsigned char* randomBytes(size_t len);
 
 void strip_newlines(char* s);
 void printHex(const char* arr, size_t len);

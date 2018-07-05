@@ -3,5 +3,6 @@
 
 void set2Problem1(void);
 void set2Problem2(void);
+void set2Problem3(void);
 
 #endif

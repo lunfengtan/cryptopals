@@ -126,9 +126,9 @@ size_t base64Decode(const char* in, size_t inlen, unsigned char** out) {
     }
 
     outlen = inlen * 3 / 4;
-    outbuf = malloc(outlen);
+    outbuf = calloc(outlen + 1, sizeof(unsigned char));
     if (outbuf == NULL) {
-        perror("Error: base64Decode malloc error");
+        perror("Error: base64Decode calloc error");
         goto err;
     }
 
@@ -286,13 +286,12 @@ err:
     free(transposed);
 }
 
-void AES128EncryptECB(const unsigned char* in, size_t len, const unsigned char* key, unsigned char** out) {
+size_t AES128EncryptECB(const unsigned char* in, size_t len, const unsigned char* key, unsigned char** out) {
     size_t outlen, offset;
     AES_KEY aesKey;
     char* padded = NULL;
 
-    padded = pkcs7Pad((const char*)in, len, AES_BLOCK_SIZE);
-    outlen = strlen(padded);
+    outlen = pkcs7Pad((const char*)in, len, AES_BLOCK_SIZE, &padded);
     *out = calloc(outlen + 1, sizeof(unsigned char));
     if (*out == NULL) {
         perror("Error: AES128EncryptECB calloc error");
@@ -303,6 +302,9 @@ void AES128EncryptECB(const unsigned char* in, size_t len, const unsigned char* 
     for (offset = 0; offset < outlen; offset += AES_BLOCK_SIZE) {
         AES_ecb_encrypt(in + offset, (*out) + offset, &aesKey, AES_ENCRYPT);
     }
+    free(padded);
+
+    return outlen;
 }
 
 void AES128DecryptECB(const unsigned char* in, size_t len, const unsigned char* key, unsigned char** out) {
@@ -322,15 +324,14 @@ void AES128DecryptECB(const unsigned char* in, size_t len, const unsigned char* 
     *out = (unsigned char*)pkcs7Strip((char*)*out, len);
 }
 
-void AES128EncryptCBC(const unsigned char* in, size_t inlen,
+size_t AES128EncryptCBC(const unsigned char* in, size_t inlen,
                       const unsigned char* key, const unsigned char* iv, unsigned char** out) {
 
-    unsigned char* padded = NULL, *xored = NULL;
+    unsigned char* padded = NULL, *xored = NULL;;
     AES_KEY aesKey;
     size_t outlen, i;
 
-    padded = (unsigned char*)pkcs7Pad((const char*)in, inlen, AES_BLOCK_SIZE);
-    outlen = strlen((const char*)padded);
+    outlen = pkcs7Pad((const char*)in, inlen, AES_BLOCK_SIZE, (char**)&padded);
     *out = calloc(outlen + 1, sizeof(unsigned char));
     if (*out == NULL) {
         perror("Error: AES128EncryptCBC calloc error");
@@ -348,6 +349,8 @@ void AES128EncryptCBC(const unsigned char* in, size_t inlen,
         free(xored);
     }
     free(padded);
+
+    return outlen;
 }
 
 void AES128DecryptCBC(const unsigned char* in, size_t inlen,
@@ -393,23 +396,22 @@ bool detectAES128ECB(const unsigned char* in, size_t inlen) {
     return false;
 }
 
-char* pkcs7Pad(const char* in, size_t inlen, size_t blklen) {
-    char* out = NULL;
+size_t pkcs7Pad(const char* in, size_t inlen, size_t blklen, char** out) {
     size_t i;
     size_t padlen = blklen - (inlen % blklen);
     size_t newlen = inlen + padlen;
 
-    out = calloc(newlen + 1, sizeof(char));
-    if (out == NULL) {
+    *out = calloc(newlen + 1, sizeof(char));
+    if (*out == NULL) {
         perror("Error: pkcs7Pad calloc error");
         exit(1);
     }
-    memcpy(out, in, inlen);
+    memcpy(*out, in, inlen);
 
     for (i = inlen; i < newlen; i++) {
-        out[i] = padlen;
+        (*out)[i] = padlen;
     }
-    return out;
+    return newlen;
 }
 
 char* pkcs7Strip(char* in, size_t inlen) {
@@ -417,6 +419,21 @@ char* pkcs7Strip(char* in, size_t inlen) {
     int outlen = inlen - padlen;
     memset(&in[outlen], 0, padlen);
     return in;
+}
+
+unsigned char* randomBytes(size_t len) {
+    unsigned char* out = NULL;
+    size_t i;
+
+    out = calloc(len + 1, sizeof(unsigned char));
+    if (out == NULL) {
+        perror("Error: randomBytes calloc error");
+        exit(1);
+    }
+    for (i = 0; i < len; i++) {
+        out[i] = rand();
+    }
+    return out;
 }
 
 void strip_newlines(char* s) {
