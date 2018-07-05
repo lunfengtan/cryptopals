@@ -10,7 +10,7 @@ const static char base64Table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrs
 const static float letterFreq[] = { 8.167, 1.492, 2.782, 4.253, 12.702, 2.228, 2.015, 6.094, 6.966, 0.153, 0.772, 4.025, 2.406, 6.749, 7.507, 1.929, 0.095, 5.987, 6.327, 9.056, 2.758, 0.978, 2.360, 0.150, 1.974, 0.074 };
 
 /* Decode hex into raw bytes */
-int hexDecode(const char* in, unsigned char** out) {
+size_t hexDecode(const char* in, unsigned char** out) {
     size_t inlen = strlen(in);
     unsigned char *outbuf;
     int outlen, i;
@@ -41,7 +41,7 @@ err:
 }
 
 /* Encode raw bytes into hex */
-char* hexEncode(const unsigned char* in, int len) {
+char* hexEncode(const unsigned char* in, size_t len) {
     char* out = NULL;
     int outlen, i;
 
@@ -62,8 +62,8 @@ exit:
 }
 
 /* Encode raw bytes into base64 */
-int base64Encode(const unsigned char* in, int inlen, char** out) {
-    int outlen, i, j, idx;
+size_t base64Encode(const unsigned char* in, size_t inlen, char** out) {
+    size_t outlen, i, j, idx;
     char *outbuf = NULL;
 
     if (inlen == 0) {
@@ -116,8 +116,7 @@ err:
 }
 
 /* Decode base64 into raw bytes */
-int base64Decode(const char* in, int inlen, unsigned char** out) {
-    // size_t inlen = strlen(in);
+size_t base64Decode(const char* in, size_t inlen, unsigned char** out) {
     int outlen, i, j;
     unsigned char* outbuf = NULL;
     unsigned char byteH, byteL;
@@ -161,8 +160,8 @@ err:
 }
 
 /* XORs message with key */
-unsigned char* xor(const unsigned char* in, int inlen, const unsigned char* key, int keylen) {
-    int i;
+unsigned char* xor(const unsigned char* in, size_t inlen, const unsigned char* key, size_t keylen) {
+    size_t i;
     unsigned char* out = NULL;
 
     out = malloc(inlen);
@@ -182,7 +181,7 @@ err:
 }
 
 /* Find the single-byte XOR key which decrypts message into plaintext English */
-unsigned char findXorKey(const unsigned char* in, int len) {
+unsigned char findXorKey(const unsigned char* in, size_t len) {
     unsigned char key;
     unsigned char *xored;
     float score, maxScore = 0.f;
@@ -201,7 +200,7 @@ unsigned char findXorKey(const unsigned char* in, int len) {
 }
 
 /* Scores message based on the character frequency in English */
-float scoreEnglish(const unsigned char* in, int len) {
+float scoreEnglish(const unsigned char* in, size_t len) {
     int i;
     float score = 0.f;
 
@@ -218,7 +217,7 @@ float scoreEnglish(const unsigned char* in, int len) {
     return score;
 }
 
-int hammingDistance(const unsigned char* s1, const unsigned char* s2, int len) {
+int hammingDistance(const unsigned char* s1, const unsigned char* s2, size_t len) {
     int i, dist = 0;
     unsigned char xored;
 
@@ -232,9 +231,9 @@ int hammingDistance(const unsigned char* s1, const unsigned char* s2, int len) {
     return dist;
 }
 
-int guessKeySize(const unsigned char* in, int len, int maxKeySize) {
-    int keysize, guessKeySize, dist;
-    int nblocks, blk1, blk2;
+size_t guessKeySize(const unsigned char* in, size_t len, size_t maxKeySize) {
+    size_t keysize, guessKeySize;
+    int dist, nblocks, blk1, blk2;
     float avgDist, minDist = FLT_MAX;
 
     for (keysize = 2; keysize < maxKeySize; keysize++) {
@@ -254,12 +253,12 @@ int guessKeySize(const unsigned char* in, int len, int maxKeySize) {
     return guessKeySize;
 }
 
-void breakRepeatingKeyXor(const unsigned char* in, int inlen,
-                          unsigned char** key, int* keySize, int maxKeySize,
+void breakRepeatingKeyXor(const unsigned char* in, size_t inlen,
+                          unsigned char** key, size_t* keySize, size_t maxKeySize,
                           unsigned char** decoded) {
 
     unsigned char* transposed = NULL;
-    int transposedSize, i, j;
+    size_t transposedSize, i, j;
 
     *key = NULL;
     *keySize = guessKeySize(in, inlen, maxKeySize);
@@ -287,25 +286,101 @@ err:
     free(transposed);
 }
 
-void AES128DecryptECB(const unsigned char* in, int inlen, const unsigned char* key, unsigned char** out) {
-    int offset;
+void AES128EncryptECB(const unsigned char* in, size_t len, const unsigned char* key, unsigned char** out) {
+    size_t outlen, offset;
+    AES_KEY aesKey;
+    char* padded = NULL;
+
+    padded = pkcs7Pad((const char*)in, len, AES_BLOCK_SIZE);
+    outlen = strlen(padded);
+    *out = calloc(outlen + 1, sizeof(unsigned char));
+    if (*out == NULL) {
+        perror("Error: AES128EncryptECB calloc error");
+        exit(1);
+    }
+
+    AES_set_encrypt_key(key, 128, &aesKey);
+    for (offset = 0; offset < outlen; offset += AES_BLOCK_SIZE) {
+        AES_ecb_encrypt(in + offset, (*out) + offset, &aesKey, AES_ENCRYPT);
+    }
+}
+
+void AES128DecryptECB(const unsigned char* in, size_t len, const unsigned char* key, unsigned char** out) {
+    size_t offset;
     AES_KEY aesKey;
 
-    *out = calloc((inlen / AES_BLOCK_SIZE + 1) * AES_BLOCK_SIZE, sizeof(unsigned char));
+    *out = calloc(len + 1, sizeof(unsigned char));
     if (*out == NULL) {
         perror("Error: AES128DecryptECB calloc error");
         exit(1);
     }
 
     AES_set_decrypt_key(key, 128, &aesKey);
-    for (offset = 0; offset < inlen; offset += AES_BLOCK_SIZE) {
+    for (offset = 0; offset < len; offset += AES_BLOCK_SIZE) {
         AES_ecb_encrypt(in + offset, (*out) + offset, &aesKey, AES_DECRYPT);
     }
+    *out = (unsigned char*)pkcs7Strip((char*)*out, len);
+}
+
+void AES128EncryptCBC(const unsigned char* in, size_t inlen,
+                      const unsigned char* key, const unsigned char* iv, unsigned char** out) {
+
+    unsigned char* padded = NULL, *xored = NULL;
+    AES_KEY aesKey;
+    size_t outlen, i;
+
+    padded = (unsigned char*)pkcs7Pad((const char*)in, inlen, AES_BLOCK_SIZE);
+    outlen = strlen((const char*)padded);
+    *out = calloc(outlen + 1, sizeof(unsigned char));
+    if (*out == NULL) {
+        perror("Error: AES128EncryptCBC calloc error");
+        exit(1);
+    }
+
+    AES_set_encrypt_key(key, 128, &aesKey);
+    for (i = 0; i < outlen; i += AES_BLOCK_SIZE) {
+        if (i == 0) {
+            xored = xor(&padded[i], AES_BLOCK_SIZE, iv, AES_BLOCK_SIZE);
+        } else {
+            xored = xor(&padded[i], AES_BLOCK_SIZE, (*out) + i - AES_BLOCK_SIZE, AES_BLOCK_SIZE);
+        }
+        AES_ecb_encrypt(xored, &(*out)[i], &aesKey, AES_ENCRYPT);
+        free(xored);
+    }
+    free(padded);
+}
+
+void AES128DecryptCBC(const unsigned char* in, size_t inlen,
+                      const unsigned char* key, const unsigned char* iv, unsigned char** out) {
+    AES_KEY aesKey;
+    size_t i;
+    unsigned char* xored = NULL;
+    unsigned char decryptedOut[AES_BLOCK_SIZE];
+
+    *out = calloc(inlen + 1, sizeof(unsigned char));
+    if (*out == NULL) {
+        perror("Error: AES128DecryptCBC calloc error");
+        exit(1);
+    }
+
+    AES_set_decrypt_key(key, 128, &aesKey);
+    for (i = 0; i < inlen; i += AES_BLOCK_SIZE) {
+        AES_ecb_encrypt(&in[i], &decryptedOut[0], &aesKey, AES_DECRYPT);
+        if (i == 0) {
+            xored = xor(decryptedOut, AES_BLOCK_SIZE, iv, AES_BLOCK_SIZE);
+        } else {
+            xored = xor(decryptedOut, AES_BLOCK_SIZE, &in[i - AES_BLOCK_SIZE], AES_BLOCK_SIZE);
+        }
+        memcpy((*out) + i, xored, AES_BLOCK_SIZE);
+        free(xored);
+    }
+
+    *out = (unsigned char*)pkcs7Strip((char*)*out, inlen);
 }
 
 /* Returns TRUE if the ciphertext is encrypted with AES in ECB mode */
-bool detectAES128ECB(const unsigned char* in, int inlen) {
-    int numberOfAESBlocks, i, j;
+bool detectAES128ECB(const unsigned char* in, size_t inlen) {
+    size_t numberOfAESBlocks, i, j;
 
     numberOfAESBlocks = inlen / AES_BLOCK_SIZE;
     for (i = 0; i < numberOfAESBlocks; i++) {
@@ -318,11 +393,11 @@ bool detectAES128ECB(const unsigned char* in, int inlen) {
     return false;
 }
 
-char* pkcs7Pad(char* in, int inlen, int blklen) {
+char* pkcs7Pad(const char* in, size_t inlen, size_t blklen) {
     char* out = NULL;
-    int i;
-    int padlen = blklen - (inlen % blklen);
-    int newlen = inlen + padlen;
+    size_t i;
+    size_t padlen = blklen - (inlen % blklen);
+    size_t newlen = inlen + padlen;
 
     out = calloc(newlen + 1, sizeof(char));
     if (out == NULL) {
@@ -335,6 +410,13 @@ char* pkcs7Pad(char* in, int inlen, int blklen) {
         out[i] = padlen;
     }
     return out;
+}
+
+char* pkcs7Strip(char* in, size_t inlen) {
+    int padlen = in[inlen - 1];
+    int outlen = inlen - padlen;
+    memset(&in[outlen], 0, padlen);
+    return in;
 }
 
 void strip_newlines(char* s) {

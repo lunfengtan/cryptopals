@@ -131,7 +131,7 @@ void set1Problem6(void) {
     FILE* fp;
     char* fpbuf = NULL;
     unsigned char* raw = NULL, *bestKey = NULL, *decoded = NULL;
-    int fplen, fpbuflen, rawlen, bestKeySize;
+    size_t fplen, fpbuflen, rawlen, bestKeySize;
 
     fp = fopen("data/6.txt", "r");
     if (fp == NULL) {
@@ -160,7 +160,7 @@ void set1Problem6(void) {
     breakRepeatingKeyXor(raw, rawlen, &bestKey, &bestKeySize, 40, &decoded);
 
     printf("Set 1 Problem 6: Break repeating-key XOR\n");
-    printf("key length: %d\n", bestKeySize);
+    printf("key length: %ld\n", bestKeySize);
     printf("key:\n");
     printArray((char*)bestKey, bestKeySize);
     printf("plaintext:\n");

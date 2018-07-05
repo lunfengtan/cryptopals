@@ -14,6 +14,7 @@ int main(void)
     set1Problem8();
 
     set2Problem1();
+    set2Problem2();
 
     return 0;
 }
