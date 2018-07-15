@@ -1,2 +1,2 @@
-*.o
-cryptopals
+build/
+.vscode/
