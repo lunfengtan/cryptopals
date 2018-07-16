@@ -14,7 +14,7 @@ int main(void) {
     int i, fails;
 
     srand(time(NULL));
-    printf("Set 2 Problem 3: An ECB/CBC detection oracle\n");
+    printf("Set 2 Problem 11: An ECB/CBC detection oracle\n");
     printf("input: %s\n", in);
 
     fails = 0;

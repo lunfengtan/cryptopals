@@ -35,12 +35,12 @@ char* in = "0123456789ABCDEF";
 
     fpbuf = calloc(fplen + 1, sizeof(char));
     if (fpbuf == NULL) {
-        perror("Error: set2Problem2 malloc error");
+        perror("Error: set2Problem10 malloc error");
         exit(1);
     }
     fpbuflen = fread(fpbuf, 1, fplen, fp);
     if (fpbuflen != fplen) {
-        perror("Error: set2Problem2 fread error");
+        perror("Error: set2Problem10 fread error");
         exit(1);
     }
     strip_newlines(fpbuf);
@@ -49,7 +49,7 @@ char* in = "0123456789ABCDEF";
     rawlen = base64Decode(fpbuf, fpbuflen, &raw);
     AES128DecryptCBC(raw, rawlen, (unsigned char*)key, (unsigned char*)iv, &decoded);
 
-    printf("Set 2 Problem 2: Implement CBC mode\n");
+    printf("Set 2 Problem 10: Implement CBC mode\n");
     printf("input: %s\n", in);
     printf("key: %s\n", key);
     printf("iv: %s\n", iv);

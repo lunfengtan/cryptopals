@@ -9,7 +9,7 @@ int main(void) {
 
     pkcs7Pad(in, strlen(in), 20, &out);
 
-    printf("Set 2 Problem 1: Implement PKCS#7 padding\n");
+    printf("Set 2 Problem 9: Implement PKCS#7 padding\n");
     printf("input: %s\n", in);
     printf("output: %s\n\n", out);
 
