@@ -30,7 +30,7 @@ int main(void) {
     unknownStrBase64Len = base64Decode(unknownStr, strlen(unknownStr), &unknownStrBase64);
 
     /* discover AES block size */
-    prevOutLen = AES128EncryptECB(unknownStrBase64, unknownStrBase64Len, key, &out);
+    prevOutLen = AES128ECBEncryptOracle(NULL, 0, unknownStrBase64, unknownStrBase64Len, key, &out);
     free(out);
     for (i = 0; i < sizeof(in) - 1; i++) {
         in[i] = 'A';
