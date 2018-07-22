@@ -20,3 +20,6 @@ target_link_libraries (set2p12 cryptopals -fsanitize=address)
 
 add_executable (set2p13 set2p13.c)
 target_link_libraries (set2p13 cryptopals kvPairs -fsanitize=address)
+
+add_executable (set2p14 set2p14.c)
+target_link_libraries (set2p14 cryptopals -fsanitize=address)
