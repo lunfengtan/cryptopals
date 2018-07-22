@@ -46,6 +46,7 @@ bool detectAES128ECB(const unsigned char* in, size_t inlen);
 
 size_t pkcs7Pad(const char* in, size_t inlen, size_t blklen, char** out);
 char* pkcs7Strip(char* in, size_t inlen);
+bool pkcs7Validate(const char* in, size_t inlen);
 
 unsigned char* randomBytes(size_t len);
 

@@ -414,10 +414,23 @@ size_t pkcs7Pad(const char* in, size_t inlen, size_t blklen, char** out) {
 }
 
 char* pkcs7Strip(char* in, size_t inlen) {
-    int padlen = in[inlen - 1];
-    int outlen = inlen - padlen;
+    size_t padlen = in[inlen - 1];
+    size_t outlen = inlen - padlen;
     memset(&in[outlen], 0, padlen);
     return in;
+}
+
+bool pkcs7Validate(const char* in, size_t inlen) {
+    size_t padlen = in[inlen - 1];
+    if (inlen <= 1 || padlen >= inlen) return false;
+
+    size_t i = inlen - 2;
+    while (--padlen) {
+        if (in[i--] != in[inlen - 1]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 unsigned char* randomBytes(size_t len) {
