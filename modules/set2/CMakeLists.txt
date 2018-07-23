@@ -26,3 +26,6 @@ target_link_libraries (set2p14 cryptopals -fsanitize=address)
 
 add_executable (set2p15 set2p15.c)
 target_link_libraries (set2p15 cryptopals -fsanitize=address)
+
+add_executable (set2p16 set2p16.c)
+target_link_libraries (set2p16 cryptopals -fsanitize=address)

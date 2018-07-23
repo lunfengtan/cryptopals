@@ -171,22 +171,22 @@ size_t AES128ECBEncryptOracle(const unsigned char* in, size_t inlen,
                               const unsigned char* prefix, size_t prefixlen,
                               const unsigned char* target, size_t targetlen,
                               const unsigned char* key, unsigned char** out) {
-    unsigned char* cipherText = NULL;
-    size_t cipherTextLen, outlen;
+    unsigned char* input = NULL;
+    size_t inputlen, outlen;
 
-    cipherTextLen = prefixlen + inlen + targetlen;
-    cipherText = calloc(cipherTextLen + 1, sizeof(unsigned char));
-    if (cipherText == NULL) {
+    inputlen = prefixlen + inlen + targetlen;
+    input = calloc(inputlen + 1, sizeof(unsigned char));
+    if (input == NULL) {
         perror("Error: AES128ECBEncryptOracle calloc error");
-        exit(-1);
+        exit(1);
     }
-    memcpy(cipherText, prefix, prefixlen);
-    memcpy(&cipherText[prefixlen], in, inlen);
-    memcpy(&cipherText[prefixlen + inlen], target, targetlen);
+    memcpy(input, prefix, prefixlen);
+    memcpy(&input[prefixlen], in, inlen);
+    memcpy(&input[prefixlen + inlen], target, targetlen);
 
-    outlen = AES128EncryptECB(cipherText, cipherTextLen, key, out);
+    outlen = AES128EncryptECB(input, inputlen, key, out);
 
-    free(cipherText);
+    free(input);
 
     return outlen;
 }

@@ -12,7 +12,7 @@ void addkvPair(profile_t* p, char* k, char* v) {
     kv = calloc(1, sizeof(kvPair_t));
     if (kv == NULL) {
         perror("Error: parseProfile calloc error");
-        exit(-1);
+        exit(1);
     }
     if (p->kvPairListHead == NULL) {
         p->kvPairListHead = kv;
@@ -69,7 +69,7 @@ size_t profileFor(const char* email, size_t len, char** out) {
     *out = calloc(len + strlen(prefix) + strlen(suffix) + 1, sizeof(char));
     if (*out == NULL) {
         perror("Error: profileFor calloc error");
-        exit(-1);
+        exit(1);
     }
 
     strcpy(*out, prefix);

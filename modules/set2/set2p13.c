@@ -29,7 +29,7 @@ int main(void) {
     payload = calloc(3 * AES_BLOCK_SIZE + 1, sizeof(char));
     if (payload == NULL) {
         perror("Error: Set 2 Problem 13 calloc error");
-        exit(-1);
+        exit(1);
     }
 
     //      blk #0      |      blk #1      |      blk #2      |

@@ -326,25 +326,22 @@ void AES128DecryptECB(const unsigned char* in, size_t len, const unsigned char* 
 size_t AES128EncryptCBC(const unsigned char* in, size_t inlen,
                       const unsigned char* key, const unsigned char* iv, unsigned char** out) {
 
-    unsigned char* padded = NULL, *xored = NULL;;
+    unsigned char* padded = NULL, *xored = NULL;
     AES_KEY aesKey;
     size_t outlen, i;
 
-    outlen = pkcs7Pad((const char*)in, inlen, AES_BLOCK_SIZE, (char**)&padded);
+    outlen = AES_BLOCK_SIZE + pkcs7Pad((const char*)in, inlen, AES_BLOCK_SIZE, (char**)&padded);
     *out = calloc(outlen + 1, sizeof(unsigned char));
     if (*out == NULL) {
         perror("Error: AES128EncryptCBC calloc error");
         exit(1);
     }
 
+    memcpy(*out, iv, AES_BLOCK_SIZE);
     AES_set_encrypt_key(key, 128, &aesKey);
     for (i = 0; i < outlen; i += AES_BLOCK_SIZE) {
-        if (i == 0) {
-            xored = xor(&padded[i], AES_BLOCK_SIZE, iv, AES_BLOCK_SIZE);
-        } else {
-            xored = xor(&padded[i], AES_BLOCK_SIZE, (*out) + i - AES_BLOCK_SIZE, AES_BLOCK_SIZE);
-        }
-        AES_ecb_encrypt(xored, &(*out)[i], &aesKey, AES_ENCRYPT);
+        xored = xor(&padded[i], AES_BLOCK_SIZE, (*out) + i, AES_BLOCK_SIZE);
+        AES_ecb_encrypt(xored, &(*out)[i + AES_BLOCK_SIZE], &aesKey, AES_ENCRYPT);
         free(xored);
     }
     free(padded);
