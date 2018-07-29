@@ -27,3 +27,4 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -fsanitize=address")
 
 add_subdirectory (modules/set1)
 add_subdirectory (modules/set2)
+add_subdirectory (modules/set3)
