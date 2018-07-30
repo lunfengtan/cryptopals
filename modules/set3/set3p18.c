@@ -10,16 +10,16 @@ int main(void)
     size_t len;
 
     len = base64Decode(cipher, strlen(cipher), &bytes);
-    AES128CTR(bytes, len, (const unsigned char*)key, 0, &decoded);
+    AES128DecryptCTR(bytes, len, (const unsigned char*)key, 0, &decoded);
 
     printf("Set 3 Problem 18: Implement CTR, the stream cipher mode\n");
     printf("cipher: %s\n", cipher);
     printf("decoded: ");
     printArray((const char*)decoded, len);
 
-    AES128CTR(decoded, len, (const unsigned char*)key, 0, &encrypted);
+    AES128EncryptCTR(decoded, len, (const unsigned char*)key, 0, &encrypted);
     free(bytes);
-    base64Encode(encrypted, len, &bytes);
+    base64Encode(encrypted, len, (char**)&bytes);
     TEST_STRING_EQUAL((const char*)bytes, cipher);
 
     free(encrypted);

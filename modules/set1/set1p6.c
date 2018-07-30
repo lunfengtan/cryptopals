@@ -32,7 +32,13 @@ int main(void) {
     fpbuflen = strlen(fpbuf);
 
     rawlen = base64Decode(fpbuf, fpbuflen, &raw);
-    breakRepeatingKeyXor(raw, rawlen, &bestKey, &bestKeySize, 40, &decoded);
+    bestKeySize = guessKeySize(raw, rawlen, 40);
+    bestKey = malloc(bestKeySize);
+    if (bestKey == NULL) {
+        perror("Error: set1Problem6 malloc error");
+        goto err;
+    }
+    breakRepeatingKeyXor(raw, rawlen, bestKey, bestKeySize, &decoded);
 
     printf("Set 1 Problem 6: Break repeating-key XOR\n");
     printf("key length: %ld\n", bestKeySize);

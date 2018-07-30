@@ -34,7 +34,7 @@ float scoreEnglish(const unsigned char* in, size_t len);
 int hammingDistance(const unsigned char* s1, const unsigned char* s2, size_t len);
 size_t guessKeySize(const unsigned char* in, size_t len, size_t maxKeySize);
 void breakRepeatingKeyXor(const unsigned char* in, size_t inlen,
-                          unsigned char** key, size_t* keySize, size_t maxkeysize,
+                          unsigned char* key, size_t keySize,
                           unsigned char** decoded);
 
 size_t AES128EncryptECB(const unsigned char* in, size_t len, const unsigned char* key, unsigned char** out);
@@ -43,8 +43,10 @@ size_t AES128EncryptCBC(const unsigned char* in, size_t inlen,
                       const unsigned char* key, const unsigned char* iv, unsigned char** out);
 void AES128DecryptCBC(const unsigned char* in, size_t inlen,
                       const unsigned char* key, const unsigned char* iv, unsigned char** out);
-void AES128CTR(const unsigned char* in, size_t len,
-               const unsigned char* key, uint64_t nonce, unsigned char** out);
+void AES128EncryptCTR(const unsigned char* in, size_t len,
+                      const unsigned char* key, uint64_t nonce, unsigned char** out);
+void AES128DecryptCTR(const unsigned char* in, size_t len,
+                      const unsigned char* key, uint64_t nonce, unsigned char** out);
 bool detectAES128ECB(const unsigned char* in, size_t inlen);
 
 size_t pkcs7Pad(const char* in, size_t inlen, size_t blklen, char** out);

@@ -253,33 +253,26 @@ size_t guessKeySize(const unsigned char* in, size_t len, size_t maxKeySize) {
 }
 
 void breakRepeatingKeyXor(const unsigned char* in, size_t inlen,
-                          unsigned char** key, size_t* keySize, size_t maxKeySize,
+                          unsigned char* key, size_t keySize,
                           unsigned char** decoded) {
 
     unsigned char* transposed = NULL;
     size_t transposedSize, i, j;
 
-    *key = NULL;
-    *keySize = guessKeySize(in, inlen, maxKeySize);
-    *key = malloc(*keySize);
-    if (*key == NULL) {
-        perror("Error: breakRepeatingKeyXor malloc error");
-        goto err;
-    }
-    transposedSize = inlen / (*keySize);    // ignore last line
+    transposedSize = inlen / (keySize);    // ignore last line
     transposed = malloc(transposedSize);
     if (transposed == NULL) {
         perror("Error: breakRepeatingKeyXor malloc error");
         goto err;
     }
 
-    for (i = 0; i < *keySize; i++) {
+    for (i = 0; i < keySize; i++) {
         for (j = 0; j < transposedSize; j++) {
-            transposed[j] = in[j * (*keySize) + i];
+            transposed[j] = in[j * (keySize) + i];
         }
-        (*key)[i] = findXorKey(transposed, transposedSize);
+        key[i] = findXorKey(transposed, transposedSize);
     }
-    *decoded = xor(in, inlen, *key, *keySize);
+    *decoded = xor(in, inlen, key, keySize);
 
 err:
     free(transposed);
@@ -377,8 +370,8 @@ void AES128DecryptCBC(const unsigned char* in, size_t inlen,
     *out = (unsigned char*)pkcs7Strip((char*)*out, inlen);
 }
 
-void AES128CTR(const unsigned char* in, size_t len,
-               const unsigned char* key, uint64_t nonce, unsigned char** out) {
+void AES128EncryptCTR(const unsigned char* in, size_t len,
+                      const unsigned char* key, uint64_t nonce, unsigned char** out) {
     unsigned char buf[AES_BLOCK_SIZE];
     unsigned char enc[AES_BLOCK_SIZE];
     uint64_t counter;
@@ -404,6 +397,11 @@ void AES128CTR(const unsigned char* in, size_t len,
         counter++;
         inlen -= AES_BLOCK_SIZE;
     }
+}
+
+void AES128DecryptCTR(const unsigned char* in, size_t len,
+                      const unsigned char* key, uint64_t nonce, unsigned char** out) {
+    AES128EncryptCTR(in, len, key, nonce, out);
 }
 
 /* Returns TRUE if the ciphertext is encrypted with AES in ECB mode */
