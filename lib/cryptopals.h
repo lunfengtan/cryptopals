@@ -1,6 +1,7 @@
 #ifndef CRYPTOPALS_H
 #define CRYPTOPALS_H
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
@@ -42,6 +43,8 @@ size_t AES128EncryptCBC(const unsigned char* in, size_t inlen,
                       const unsigned char* key, const unsigned char* iv, unsigned char** out);
 void AES128DecryptCBC(const unsigned char* in, size_t inlen,
                       const unsigned char* key, const unsigned char* iv, unsigned char** out);
+void AES128CTR(const unsigned char* in, size_t len,
+               const unsigned char* key, uint64_t nonce, unsigned char** out);
 bool detectAES128ECB(const unsigned char* in, size_t inlen);
 
 size_t pkcs7Pad(const char* in, size_t inlen, size_t blklen, char** out);

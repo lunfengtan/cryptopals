@@ -16,7 +16,7 @@ int main(void) {
     unsigned char* key = NULL, *iv = NULL;
     unsigned char* cipher = NULL, *decoded = NULL;
     unsigned char payload[2 * AES_BLOCK_SIZE];
-    size_t cipherLen, decodedLen, i;
+    size_t cipherLen, i;
 
     srand(time(NULL));
     key = randomBytes(AES_BLOCK_SIZE);
@@ -29,7 +29,7 @@ int main(void) {
                                        key, iv, &cipher);
 
     // new Ci-1 = desired_plaintext ^ D(k, Ci) = desired_plaintext ^ Pi ^ old Ci-1
-    const unsigned char* desiredPlaintextBlock = "12345;admin=true";
+    const unsigned char* desiredPlaintextBlock = (const unsigned char*)"12345;admin=true";
     for (i = 0; i < AES_BLOCK_SIZE; i++) {
         cipher[3 * AES_BLOCK_SIZE + i] = desiredPlaintextBlock[i]
                                          ^ payload[AES_BLOCK_SIZE + i]
@@ -38,8 +38,9 @@ int main(void) {
     AES128DecryptCBC(&cipher[AES_BLOCK_SIZE], cipherLen - AES_BLOCK_SIZE, key, &cipher[0], &decoded);
 
     printf("Set 2 Problem 16: CBC bitflipping attacks\n");
-    printf("cipher: %s\n", cipher);
-    printf("decoded: %s\n", decoded);
+    printf("cipher: ");
+    printArray((const char*)cipher, cipherLen);
+    printf("\ndecoded: %s\n", decoded);
     if (strstr((const char*)decoded, ";admin=true;")) {
         printf("Success!\n");
     } else {

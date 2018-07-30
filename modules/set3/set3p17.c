@@ -6,7 +6,7 @@
 
 bool AES128CBCPaddingOracle(const unsigned char* in, size_t inlen,
                             const unsigned char* key, const unsigned char* iv);
-void decodeIntermediateBlock(const unsigned char* cipher,
+void solveIntermediateBlock(const unsigned char* cipher,
                              const unsigned char* key, const unsigned char* iv,
                              unsigned char* out);
 
@@ -45,7 +45,7 @@ int main(void) {
         size_t numberOfBlocks = cipherLen / AES_BLOCK_SIZE;
         for (size_t j = 0; j < numberOfBlocks - 1; j++) {
             size_t blkOffset = cipherLen - ((j + 1) * AES_BLOCK_SIZE);
-            decodeIntermediateBlock(&cipher[blkOffset], key, iv, intermediateBlock);
+            solveIntermediateBlock(&cipher[blkOffset], key, iv, intermediateBlock);
             for (size_t k = 0; k < AES_BLOCK_SIZE; k++) {
                 decoded[blkOffset + k] =  cipher[blkOffset - AES_BLOCK_SIZE + k] ^ intermediateBlock[k];
             }
@@ -67,7 +67,7 @@ exit:
     return 0;
 }
 
-void decodeIntermediateBlock(const unsigned char* cipher,
+void solveIntermediateBlock(const unsigned char* cipher,
                              const unsigned char* key, const unsigned char* iv,
                              unsigned char* out) {
     unsigned char buf[2 * AES_BLOCK_SIZE];

@@ -377,6 +377,35 @@ void AES128DecryptCBC(const unsigned char* in, size_t inlen,
     *out = (unsigned char*)pkcs7Strip((char*)*out, inlen);
 }
 
+void AES128CTR(const unsigned char* in, size_t len,
+               const unsigned char* key, uint64_t nonce, unsigned char** out) {
+    unsigned char buf[AES_BLOCK_SIZE];
+    unsigned char enc[AES_BLOCK_SIZE];
+    uint64_t counter;
+    AES_KEY aesKey;
+    int inlen = len;
+
+    *out = calloc(len + 1, sizeof(unsigned char));
+    if (*out == NULL) {
+        perror("Error: AES128EncryptCTR calloc error");
+        exit(1);
+    }
+
+    *((uint64_t*)&buf[0]) = nonce;
+    counter = 0;
+    AES_set_encrypt_key(key, 128, &aesKey);
+    while (inlen > 0) {
+        size_t base = counter * AES_BLOCK_SIZE;
+        *((uint64_t*)&buf[AES_BLOCK_SIZE/2]) = counter;
+        AES_ecb_encrypt(buf, enc, &aesKey, AES_ENCRYPT);
+        for (size_t i = 0; i < MIN(inlen, AES_BLOCK_SIZE); i++) {
+            (*out)[base + i] = in[base + i] ^ enc[i];
+        }
+        counter++;
+        inlen -= AES_BLOCK_SIZE;
+    }
+}
+
 /* Returns TRUE if the ciphertext is encrypted with AES in ECB mode */
 bool detectAES128ECB(const unsigned char* in, size_t inlen) {
     size_t numberOfAESBlocks, i, j;
