@@ -32,7 +32,7 @@ int main(void) {
     key = randomBytes(AES_BLOCK_SIZE);
     iv = randomBytes(AES_BLOCK_SIZE);
 
-    for (size_t i = 0; i < sizeof(base64Array) / sizeof(base64Array[0]); i++) {
+    for (size_t i = 0; i < SIZEOF_ARRAY(base64Array); i++) {
         bytesLen = base64Decode(base64Array[i], strlen(base64Array[i]), &bytes);
         cipherLen = AES128EncryptCBC(bytes, bytesLen, key, iv, &cipher);
         decodedLen = cipherLen;

@@ -9,6 +9,8 @@
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 
+#define SIZEOF_ARRAY(arr) (sizeof(arr) / sizeof(arr[0]))
+
 #define TEST_STRING_EQUAL(x, ans) \
     do { \
         if (strcmp(x, ans) != 0) \
@@ -54,6 +56,9 @@ char* pkcs7Strip(char* in, size_t inlen);
 bool pkcs7Validate(const char* in, size_t inlen);
 
 unsigned char* randomBytes(size_t len);
+
+void MT19937Seed(uint32_t seed);
+uint32_t MT19937Rand(void);
 
 void strip_newlines(char* s);
 void printHex(const char* arr, size_t len);
