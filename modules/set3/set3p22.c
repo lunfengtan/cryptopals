@@ -13,14 +13,15 @@ int main(void) {
     uint32_t target;
     uint32_t simulatedDelaySec;
     uint32_t initTime, currentTime;
+    mt19937_t mt;
 
     initTime = time(NULL);
     srand(initTime);
 
     printf("Set 3 Problem 22: Crack an MT19937 seed\n");
     simulatedDelaySec = simulateWaitBetween(MIN_DELAY_SEC, MAX_DELAY_SEC);
-    MT19937Seed(initTime + simulatedDelaySec);
-    target = MT19937Rand();
+    MT19937Seed(&mt, initTime + simulatedDelaySec);
+    target = MT19937Rand(&mt);
     printf("MT19937 PRNG seeded\n");
     printf("Target = %u\n\n", target);
 
@@ -29,8 +30,8 @@ int main(void) {
 
     printf("Start cracking for MT19937 seed...\n");
     for (uint32_t t = currentTime - 2 * MAX_DELAY_SEC; t < currentTime; t++) {
-        MT19937Seed(t);
-        if (MT19937Rand() == target) {
+        MT19937Seed(&mt, t);
+        if (MT19937Rand(&mt) == target) {
             printf("\nSeed found!\n");
             printf("Seed = %u\n", t);
             break;

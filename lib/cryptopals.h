@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "mt19937.h"
 
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
@@ -56,9 +57,6 @@ char* pkcs7Strip(char* in, size_t inlen);
 bool pkcs7Validate(const char* in, size_t inlen);
 
 unsigned char* randomBytes(size_t len);
-
-void MT19937Seed(uint32_t seed);
-uint32_t MT19937Rand(void);
 
 void strip_newlines(char* s);
 void printHex(const char* arr, size_t len);
