@@ -2,6 +2,7 @@
 #define CRYPTOPALS_MT19937_H
 
 #include <stdint.h>
+#include <string.h>
 
 #define MT19937_F   1812433253
 #define MT19937_W   32
@@ -32,5 +33,8 @@ void MT19937Seed(mt19937_t* mt, uint32_t seed);
 uint32_t MT19937Rand(mt19937_t* mt);
 uint32_t MT19937Temper(uint32_t y);
 uint32_t MT19937Untemper(uint32_t y);
+
+void MT19937Encrypt(const unsigned char* in, size_t len, uint16_t key, unsigned char** out);
+void MT19937Decrypt(const unsigned char* in, size_t len, uint16_t key, unsigned char** out);
 
 #endif

@@ -175,7 +175,6 @@ unsigned char* xor(const unsigned char* in, size_t inlen, const unsigned char* k
     return out;
 
 err:
-    free(out);
     return NULL;
 }
 

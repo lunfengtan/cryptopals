@@ -1,4 +1,6 @@
-#include "mt19937.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include "cryptopals.h"
 
 void MT19937Seed(mt19937_t* mt, uint32_t seed) {
     mt->idx = MT19937_N;
@@ -54,4 +56,29 @@ uint32_t MT19937Untemper(uint32_t y) {
     y = temp;
     y = y ^ (y >> MT19937_U) ^ (y >> (2 * MT19937_U));
     return y;
+}
+
+void MT19937Encrypt(const unsigned char* in, size_t len, uint16_t key, unsigned char** out) {
+    unsigned char* keystream = NULL;
+    size_t keystreamlen;
+    mt19937_t mt;
+
+    MT19937Seed(&mt, (uint16_t)key);
+    keystreamlen = len + 3;
+    keystream = calloc(keystreamlen, sizeof(unsigned char));
+    if (keystream == NULL) {
+        perror("Error: MT19937Encrypt/Decrypt calloc error");
+        exit(1);
+    }
+
+    for (size_t i = 0; i < keystreamlen; i += 4) {
+        *((uint32_t*)&keystream[i]) = MT19937Rand(&mt);
+    }
+    *out = xor(in, len, keystream, keystreamlen);
+
+    free(keystream);
+}
+
+void MT19937Decrypt(const unsigned char* in, size_t len, uint16_t key, unsigned char** out) {
+    MT19937Encrypt(in, len, key, out);
 }
