@@ -366,7 +366,9 @@ void AES128DecryptCBC(const unsigned char* in, size_t inlen,
         free(xored);
     }
 
-    *out = (unsigned char*)pkcs7Strip((char*)*out, inlen);
+    if (pkcs7Validate((const char*)*out, inlen)) {
+        *out = (unsigned char*)pkcs7Strip((char*)*out, inlen);
+    }
 }
 
 void AES128EncryptCTR(const unsigned char* in, size_t len,

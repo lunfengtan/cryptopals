@@ -40,7 +40,7 @@ int main(void) {
     }
     AES128DecryptCTR(cipher, cipherLen, key, nonce, &decoded);
 
-    printf("Set 2 Problem 16: CBC bitflipping attacks\n");
+    printf("Set 4 Problem 26: CTR bitflipping\n");
     printf("cipher: ");
     printArray((const char*)cipher, cipherLen);
     printf("\ndecoded: %s\n", decoded);
@@ -80,7 +80,7 @@ size_t AES128CTREncryptOracle(const unsigned char* in, size_t inlen,
     inputlen = prefixlen + strlen((const char*)buf) + suffixlen;
     input = calloc(inputlen + 1, sizeof(unsigned char));
     if (input == NULL) {
-        perror("Error: AES128CBCEncryptOracle calloc error");
+        perror("Error: AES128CTREncryptOracle calloc error");
         exit(1);
     }
     memcpy(input, prefix, prefixlen);
