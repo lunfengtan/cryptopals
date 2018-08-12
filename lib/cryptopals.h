@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "mt19937.h"
+#include "sha1.h"
 
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
@@ -58,8 +59,11 @@ bool pkcs7Validate(const char* in, size_t inlen);
 
 unsigned char* randomBytes(size_t len);
 
+void sha1KeyedMAC(const unsigned char* in, size_t inlen, const unsigned char* key, size_t keylen,
+                  unsigned char* hash);
+
 void strip_newlines(char* s);
-void printHex(const char* arr, size_t len);
+void printHex(const unsigned char* arr, size_t len);
 void printArray(const char* arr, size_t len);
 
 #endif

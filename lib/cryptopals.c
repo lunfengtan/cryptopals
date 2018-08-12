@@ -473,6 +473,26 @@ unsigned char* randomBytes(size_t len) {
     return out;
 }
 
+void sha1KeyedMAC(const unsigned char* in, size_t inlen, const unsigned char* key, size_t keylen,
+                  unsigned char* hash) {
+    unsigned char* input = NULL;
+    SHA1Context sha;
+
+    input = malloc(inlen + keylen);
+    if (input == NULL) {
+        perror("Error: sha1KeyedMAC malloc error");
+        exit(1);
+    }
+    memcpy(input, key, keylen);
+    memcpy(input + keylen, in, inlen);
+
+    SHA1Reset(&sha);
+    SHA1Input(&sha, input, keylen + inlen);
+    SHA1Result(&sha, hash);
+
+    free(input);
+}
+
 void strip_newlines(char* s) {
     char* ptr = s;
 
@@ -487,10 +507,10 @@ void strip_newlines(char* s) {
     *s = '\0';
 }
 
-void printHex(const char* arr, size_t len) {
+void printHex(const unsigned char* arr, size_t len) {
     size_t i;
     for (i = 0; i < len; i++) {
-        printf("%0x", arr[i]);
+        printf("%02x", arr[i]);
     }
     printf("\n");
 }
