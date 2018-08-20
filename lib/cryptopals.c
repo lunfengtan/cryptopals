@@ -486,11 +486,30 @@ void sha1KeyedMAC(const unsigned char* in, size_t inlen, const unsigned char* ke
     memcpy(input, key, keylen);
     memcpy(input + keylen, in, inlen);
 
-    SHA1Reset(&sha);
-    SHA1Input(&sha, input, keylen + inlen);
-    SHA1Result(&sha, hash);
+    sha1(input, keylen + inlen, hash);
 
     free(input);
+}
+
+void sha1(const unsigned char* in, size_t inlen, unsigned char* hash) {
+    SHA1Context sha;
+
+    SHA1Reset(&sha);
+    SHA1Input(&sha, in, inlen);
+    SHA1Result(&sha, hash);
+}
+
+uint32_t byteSwap32(uint32_t num) {
+    num = ((num & 0x0000FFFF) << 16) | ((num & 0xFFFF0000) >> 16);
+    num = ((num & 0x00FF00FF) <<  8) | ((num & 0xFF00FF00) >> 8);
+    return num;
+}
+
+uint64_t byteSwap64(uint64_t num) {
+    num = ((num & 0x00000000FFFFFFFF) << 32) | ((num & 0xFFFFFFFF00000000) >> 32);
+    num = ((num & 0x0000FFFF0000FFFF) << 16) | ((num & 0xFFFF0000FFFF0000) >> 16);
+    num = ((num & 0x00FF00FF00FF00FF) <<  8) | ((num & 0xFF00FF00FF00FF00) >> 8);
+    return num;
 }
 
 void strip_newlines(char* s) {

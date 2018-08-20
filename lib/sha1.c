@@ -180,26 +180,26 @@ int SHA1Input(    SHA1Context    *context,
     }
     while(length-- && !context->Corrupted)
     {
-    context->Message_Block[context->Message_Block_Index++] =
-                    (*message_array & 0xFF);
+        context->Message_Block[context->Message_Block_Index++] =
+                        (*message_array & 0xFF);
 
-    context->Length_Low += 8;
-    if (context->Length_Low == 0)
-    {
-        context->Length_High++;
-        if (context->Length_High == 0)
+        context->Length_Low += 8;
+        if (context->Length_Low == 0)
         {
-            /* Message is too long */
-            context->Corrupted = 1;
+            context->Length_High++;
+            if (context->Length_High == 0)
+            {
+                /* Message is too long */
+                context->Corrupted = 1;
+            }
         }
-    }
 
-    if (context->Message_Block_Index == 64)
-    {
-        SHA1ProcessMessageBlock(context);
-    }
+        if (context->Message_Block_Index == 64)
+        {
+            SHA1ProcessMessageBlock(context);
+        }
 
-    message_array++;
+        message_array++;
     }
 
     return shaSuccess;

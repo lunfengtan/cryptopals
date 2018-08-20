@@ -12,3 +12,6 @@ target_link_libraries (set4p27 cryptopals -fsanitize=address)
 
 add_executable (set4p28 set4p28.c)
 target_link_libraries (set4p28 cryptopals -fsanitize=address)
+
+add_executable (set4p29 set4p29.c)
+target_link_libraries (set4p29 cryptopals -fsanitize=address)
