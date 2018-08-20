@@ -473,10 +473,17 @@ unsigned char* randomBytes(size_t len) {
     return out;
 }
 
+void sha1(const unsigned char* in, size_t inlen, unsigned char* hash) {
+    SHA1Context ctx;
+
+    SHA1Reset(&ctx);
+    SHA1Input(&ctx, in, inlen);
+    SHA1Result(&ctx, hash);
+}
+
 void sha1KeyedMAC(const unsigned char* in, size_t inlen, const unsigned char* key, size_t keylen,
                   unsigned char* hash) {
     unsigned char* input = NULL;
-    SHA1Context sha;
 
     input = malloc(inlen + keylen);
     if (input == NULL) {
@@ -491,12 +498,29 @@ void sha1KeyedMAC(const unsigned char* in, size_t inlen, const unsigned char* ke
     free(input);
 }
 
-void sha1(const unsigned char* in, size_t inlen, unsigned char* hash) {
-    SHA1Context sha;
+void md4(const unsigned char* in, size_t inlen, unsigned char* hash) {
+    MD4_CTX ctx;
 
-    SHA1Reset(&sha);
-    SHA1Input(&sha, in, inlen);
-    SHA1Result(&sha, hash);
+    MD4Init(&ctx);
+    MD4Update(&ctx, in, inlen);
+    MD4Final(&ctx, hash);
+}
+
+void md4KeyedMAC(const unsigned char* in, size_t inlen, const unsigned char* key, size_t keylen,
+                 unsigned char* hash) {
+        unsigned char* input = NULL;
+
+    input = malloc(inlen + keylen);
+    if (input == NULL) {
+        perror("Error: md4KeyedMAC malloc error");
+        exit(1);
+    }
+    memcpy(input, key, keylen);
+    memcpy(input + keylen, in, inlen);
+
+    md4(input, keylen + inlen, hash);
+
+    free(input);
 }
 
 uint32_t byteSwap32(uint32_t num) {

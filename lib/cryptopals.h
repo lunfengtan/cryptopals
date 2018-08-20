@@ -7,6 +7,7 @@
 #include <string.h>
 #include "mt19937.h"
 #include "sha1.h"
+#include "md4.h"
 
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
@@ -18,9 +19,6 @@
         if (strcmp(x, ans) != 0) \
             printf("Wrong answer!\n"); \
     } while (0)
-
-#define SHA1_HASH_SIZE      (160 / 8)
-#define SHA1_BLOCK_SIZE     (512 / 8)
 
 typedef enum {
     AES_CBC,
@@ -65,6 +63,10 @@ unsigned char* randomBytes(size_t len);
 void sha1(const unsigned char* in, size_t inlen, unsigned char* hash);
 void sha1KeyedMAC(const unsigned char* in, size_t inlen, const unsigned char* key, size_t keylen,
                   unsigned char* hash);
+
+void md4(const unsigned char* in, size_t inlen, unsigned char* hash);
+void md4KeyedMAC(const unsigned char* in, size_t inlen, const unsigned char* key, size_t keylen,
+                 unsigned char* hash);
 
 uint32_t byteSwap32(uint32_t num);
 uint64_t byteSwap64(uint64_t num);

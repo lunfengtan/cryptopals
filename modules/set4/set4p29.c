@@ -6,9 +6,9 @@
 #define MIN_KEY_SIZE    1
 #define MAX_KEY_SIZE    16
 
-size_t mdPadding(size_t inlen, unsigned char** pad);
+size_t sha1Padding(size_t inlen, unsigned char** pad);
 
-void sha1Extend(const unsigned char* oldhash, size_t oldlen,
+void sha1Extend(const unsigned char* oldhash, uint64_t oldlen,
                 const unsigned char* extension, size_t extensionlen,
                 unsigned char* newhash);
 
@@ -36,7 +36,7 @@ int main(void) {
         unsigned char* padding = NULL, *payload = NULL;
 
         /* compute the new hash from extending the message */
-        size_t paddinglen = mdPadding(k + inlen, &padding);
+        size_t paddinglen = sha1Padding(k + inlen, &padding);
         size_t adminlen = strlen(admin);
         sha1Extend(orig_hash, k + inlen + paddinglen, (const unsigned char*)admin, adminlen, forged_hash);
 
@@ -82,7 +82,7 @@ int main(void) {
  * allocate an array containing just the padding bytes for an input of length inlen
  * and return the length of the new array
  */
-size_t mdPadding(size_t inlen, unsigned char** pad) {
+size_t sha1Padding(size_t inlen, unsigned char** pad) {
     unsigned char* padding = NULL;
     size_t paddinglen;
 
@@ -90,7 +90,7 @@ size_t mdPadding(size_t inlen, unsigned char** pad) {
     paddinglen = 1 + SHA1_BLOCK_SIZE - ((inlen + 1) % SHA1_BLOCK_SIZE);
     padding = calloc(paddinglen, sizeof(unsigned char));
     if (padding == NULL) {
-        perror("Error: mdPadding calloc error");
+        perror("Error: sha1Padding calloc error");
         exit(1);
     }
     // append bit "1"
@@ -102,7 +102,7 @@ size_t mdPadding(size_t inlen, unsigned char** pad) {
     return paddinglen;
 }
 
-void sha1Extend(const unsigned char* oldhash, size_t oldlen,
+void sha1Extend(const unsigned char* oldhash, uint64_t oldlen,
                 const unsigned char* extension, size_t extensionlen,
                 unsigned char* newhash) {
     const uint32_t* oldhash32 = NULL;

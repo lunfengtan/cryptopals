@@ -28,6 +28,9 @@
  *
  */
 
+#define SHA1_HASH_SIZE      (160 / 8)
+#define SHA1_BLOCK_SIZE     (512 / 8)
+
 #ifndef _SHA_enum_
 #define _SHA_enum_
 enum
