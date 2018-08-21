@@ -508,7 +508,7 @@ void md4(const unsigned char* in, size_t inlen, unsigned char* hash) {
 
 void md4KeyedMAC(const unsigned char* in, size_t inlen, const unsigned char* key, size_t keylen,
                  unsigned char* hash) {
-        unsigned char* input = NULL;
+    unsigned char* input = NULL;
 
     input = malloc(inlen + keylen);
     if (input == NULL) {
@@ -521,6 +521,44 @@ void md4KeyedMAC(const unsigned char* in, size_t inlen, const unsigned char* key
     md4(input, keylen + inlen, hash);
 
     free(input);
+}
+
+void hmac_sha1(const unsigned char* in, size_t inlen, const unsigned char* key, size_t keylen,
+               unsigned char* hash) {
+    unsigned char* input1 = NULL, *input2 = NULL;
+    unsigned char hmac_key[SHA1_BLOCK_SIZE] = { 0 };
+    unsigned char o_key[SHA1_BLOCK_SIZE], i_key[SHA1_BLOCK_SIZE];
+
+    if (keylen > SHA1_BLOCK_SIZE) {
+        sha1(key, keylen, hmac_key);
+    } else {
+        memcpy(hmac_key, key, keylen);
+    }
+    for (size_t i = 0; i < SHA1_BLOCK_SIZE; i++) {
+        o_key[i] = hmac_key[i] ^ 0x5C;
+        i_key[i] = hmac_key[i] ^ 0x36;
+    }
+
+    input1 = malloc(SHA1_BLOCK_SIZE + inlen);
+    if (input1 == NULL) {
+        perror("Error: hmac_sha1 malloc error");
+        exit(1);
+    }
+    memcpy(input1, i_key, SHA1_BLOCK_SIZE);
+    memcpy(input1 + SHA1_BLOCK_SIZE, in, inlen);
+    sha1(input1, SHA1_BLOCK_SIZE + inlen, hash);
+
+    input2 = malloc(SHA1_BLOCK_SIZE + SHA1_HASH_SIZE);
+    if (input2 == NULL) {
+        perror("Error: hmac_sha1 malloc error");
+        exit(1);
+    }
+    memcpy(input2, o_key, SHA1_BLOCK_SIZE);
+    memcpy(input2 + SHA1_BLOCK_SIZE, hash, SHA1_HASH_SIZE);
+    sha1(input2, SHA1_BLOCK_SIZE + SHA1_HASH_SIZE, hash);
+
+    free(input1);
+    free(input2);
 }
 
 uint32_t byteSwap32(uint32_t num) {

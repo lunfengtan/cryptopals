@@ -68,6 +68,9 @@ void md4(const unsigned char* in, size_t inlen, unsigned char* hash);
 void md4KeyedMAC(const unsigned char* in, size_t inlen, const unsigned char* key, size_t keylen,
                  unsigned char* hash);
 
+void hmac_sha1(const unsigned char* in, size_t inlen, const unsigned char* key, size_t keylen,
+               unsigned char* hash);
+
 uint32_t byteSwap32(uint32_t num);
 uint64_t byteSwap64(uint64_t num);
 

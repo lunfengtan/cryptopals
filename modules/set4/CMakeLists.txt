@@ -18,3 +18,6 @@ target_link_libraries (set4p29 cryptopals -fsanitize=address)
 
 add_executable (set4p30 set4p30.c)
 target_link_libraries (set4p30 cryptopals -fsanitize=address)
+
+add_executable (set4p31 set4p31.c hmac_sha1_oracle.c)
+target_link_libraries (set4p31 cryptopals m -fsanitize=address)
